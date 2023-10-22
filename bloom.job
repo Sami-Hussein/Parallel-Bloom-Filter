@@ -1,0 +1,27 @@
+#!/bin/bash
+#SBATCH --job-name=bloom	 # Name your job
+#SBATCH --time=00:10:00		         # Maximum runtime (hh:mm:ss or dd-hh:mm:ss)
+#SBATCH --mem=16G				         # Memory setting (max 2 GB per core)
+#SBATCH --ntasks=1				         # Launch one process
+#SBATCH --cpus-per-task=8		         # Multi-threaded processes
+#SBATCH --output=bloom.%j.out  # Output file with job ID
+#SBATCH --partition=defq
+
+
+
+# Compile parallel.c with OpenMP support
+gcc -o par parallel.c -lm -fopenmp -Wall
+
+if [ -f par ]
+then
+    # Check if compilation was successful
+    echo "Compilation successful."
+    
+    OMP_NUM_THREADS=$SLURM_CPU_PER_TASK
+    # Run the 'par' program with input files
+    ./par words.txt query.txt
+else
+    echo "Compilation failed."
+fi
+
+exit 0
